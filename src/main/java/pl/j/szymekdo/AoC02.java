@@ -62,6 +62,7 @@ public class AoC02 extends AoC {
                 }
                 if(content[0] == 19690720)
                     System.out.println(100*c1+c2);
+                
             }
         }
         //System.out.println(content[0]);
