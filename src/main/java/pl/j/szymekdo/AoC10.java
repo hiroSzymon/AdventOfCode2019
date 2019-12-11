@@ -89,7 +89,7 @@ public class AoC10 extends AoC {
 
         ArrayList<Pair<Integer, Integer>> ordered = visibles.get(best).stream()
                                                                    .filter(e -> !(e.equals(best)))
-                                                                   .sorted(Comparator.comparingDouble(e -> angle(best, e)-squareTargetSource(best, e)))
+                                                                   .sorted(Comparator.comparingDouble(e -> angle(best, e)))
                                                                    .collect(Collectors.toCollection(ArrayList::new));
 
 
@@ -98,8 +98,13 @@ public class AoC10 extends AoC {
 
 
     private double angle(Pair<Integer, Integer> from, Pair<Integer, Integer> to){
-        double angle = -(Math.toDegrees(Math.atan2(to.getValue() - from.getValue(), to.getKey()-from.getKey())) - 270);
-        return angle%360;
+        double angle = (Math.toDegrees(Math.atan2(to.getValue() - from.getValue(), to.getKey()-from.getKey())) +90);
+        if(to.equals(Pair.of(8,1)) || to.equals(Pair.of(12,3)) || to.equals(Pair.of(2,3)))
+            System.out.println(to+" "+ angle);
+        if(angle<0)
+            angle=450+angle;
+        return  (Math.toDegrees(Math.atan2(to.getValue() - from.getValue(),to.getKey()-from.getKey()))+450)%360;
+        //return angle%360;
 
     }
 
