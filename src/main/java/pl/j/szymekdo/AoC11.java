@@ -1,10 +1,9 @@
 package pl.j.szymekdo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AoC11 extends AoC {
@@ -31,15 +30,21 @@ public class AoC11 extends AoC {
     private void part1() throws Exception {
         ArrayList<Long> outputs = new ArrayList<>();
         contentList.add(Arrays.stream(readFile().split(",")).map(e -> Long.parseLong(e.trim())).collect(Collectors.toList()));
-        long[][] paintArea = new long[50][50];
-        int curx =25, cury=25;
+        fillContent();
+        long[][] paintArea = new long[100][100];
+        int curx =50, cury=50;
+        paintArea[cury][curx]=1;
         long outp;
         Direction currentDirection = Direction.UP;
-        while ((outp = getOutput(Arrays.copyOfRange(paintArea[cury], curx, curx+2), 0))!=Long.MIN_VALUE){
-            System.out.println(outp);
+        Set<Pair<Integer, Integer>> paintedOnce = new HashSet<>();
+        int i=0;
+        while ((outp = getOutput(new long[]{paintArea[cury][curx]},0))!=Long.MIN_VALUE){
+           // System.out.println(outp);
             paintArea[cury][curx]=outp;
+            paintedOnce.add(Pair.of(cury, curx));
+            i++;
             outp = getOutput(Arrays.copyOfRange(paintArea[cury], curx, curx+2), 0);
-            System.out.println(outp);
+            //System.out.println(outp);
             if(currentDirection==Direction.UP){
                 if(outp==0){
                     curx--;
@@ -61,22 +66,22 @@ public class AoC11 extends AoC {
                     cury++;
                     currentDirection=Direction.UP;
                 }else if(outp == 1){
-                    curx--;
+                    cury--;
                     currentDirection=Direction.DOWN;
                 }else System.out.println("ERR");
             }else if(currentDirection==Direction.LEFT){
                 if(outp==0){
-                    curx--;
+                    cury--;
                     currentDirection=Direction.DOWN;
                 }else if(outp == 1){
-                    curx++;
+                    cury++;
                     currentDirection=Direction.UP;
                 }else System.out.println("ERR");
             }
 
 
         }
-
+        Arrays.stream(paintArea).forEach(e-> System.out.println(Arrays.toString(e).replaceAll(",", "").replaceAll("0", " ").replaceAll("1", "X")));
 
     }
 
@@ -91,7 +96,7 @@ public class AoC11 extends AoC {
         List<Long> content = contentList.get(thruster);
 
         int currentPosition = thrusterYieldIP[thruster];
-        int inputPosition = thrusterYieldInputPosition[thruster]%2;
+        int inputPosition = 0;//thrusterYieldInputPosition[thruster]%2;
         int opcode;
         try {
             outer:
