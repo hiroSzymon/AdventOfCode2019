@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class IntcodeVM{
     ArrayList<List<Long>> contentList = new ArrayList<>();
     int[] thrusterYieldIP = new int[5];
+    int[] thrusterYieldInputPosition = new int[5];
     boolean[] thrusterHalted = new boolean[5];
     Boolean[] thrustedFinished = new Boolean[]{false, false, false, false, false};
     long[] params = new long[]{0};
@@ -28,7 +29,7 @@ public class IntcodeVM{
         List<Long> content = contentList.get(thruster);
 
         int currentPosition = thrusterYieldIP[thruster];
-        int inputPosition = 0;//currentPosition == 0 ? 0 : 1;
+        int inputPosition = thrusterYieldInputPosition[0];
         int opcode;
         try {
             outer:
@@ -51,12 +52,13 @@ public class IntcodeVM{
                             currentPosition += 4;
                             break;
                         case 3:
-                            if (inputPosition == input.length) {
+                            if (inputPosition >= input.length) {
                                 thrusterYieldIP[thruster] = currentPosition;
+                                thrusterYieldInputPosition[thruster]=++inputPosition;
                                 thrusterHalted[thruster] = true;
-                                return out.get(out.size() - 1);
+                                return 0;
                             }
-                            content.set(content.get(currentPosition + 1).intValue(), input[inputPosition++]);
+                            content.set(content.get(currentPosition + 1).intValue(), input[thrusterYieldInputPosition[0]++]);
                             currentPosition += 2;
                             break;
                         case 4:
@@ -141,7 +143,9 @@ public class IntcodeVM{
                             parameter1 = getOutputAddressForParameter(parameterModes[0], content, currentPosition, 1);
                             if (inputPosition == input.length) {
                                 thrusterYieldIP[thruster] = currentPosition;
-                                return out.get(out.size() - 1);
+                                thrusterYieldInputPosition[thruster]=++inputPosition;
+                                thrusterHalted[thruster] = true;
+                                return 0;
                             }
                             content.set((int) parameter1, input[inputPosition++]);
                             currentPosition += 2;
@@ -232,4 +236,5 @@ public class IntcodeVM{
         }
         throw new UnsupportedOperationException("Wrong parameter!");
     }
+
 }

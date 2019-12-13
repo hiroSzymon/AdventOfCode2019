@@ -47,17 +47,20 @@ public class AoC13 extends AoC {
         final TerminalPosition[] initPos = {term.getCursorPosition().withColumn(5).withRow(2)};
 
         tx.drawRectangle(initPos[0], term.getTerminalSize().withColumns(5).withRows(5), 'c' );
-        KeyStroke keyStroke = term.readInput();
+        KeyStroke keyStroke;
         term.clearScreen();
 
-        long[] input =new long[1];
+        long[] input =new long[]{0};
         while (true) {
+            intcodeVM.thrusterYieldInputPosition[0]=0;
             long out = intcodeVM.getOutput(input, 0);
             if(out==Long.MIN_VALUE)
                 break;
             long out2 = intcodeVM.getOutput(input, 0);
             long out3 = intcodeVM.getOutput(input, 0);
-            input[0]=0;
+            if(out==-1 && out2==0)
+                System.out.println("Score: "+out3);
+            //input[0]=0;
             switch ((int)out3){
                 case 1:
                     tx.drawRectangle(initPos[0].withRow((int)out2).withColumn((int)out), term.getTerminalSize().withRows(1).withColumns(1), 'w');
@@ -69,24 +72,19 @@ public class AoC13 extends AoC {
                     break;
                 case 3:
                     paddle.drawRectangle(initPos[0].withRow((int)out2).withColumn((int)out), term.getTerminalSize().withRows(1).withColumns(1), 'p');
+                    paddle.drawRectangle(initPos[0].withRow((int)out2).withColumn((int)out-1), term.getTerminalSize().withRows(1).withColumns(1), ' ');
                     term.flush();
                     break;
                 case 4:
-                    Thread.sleep(1000);
                     tx.drawRectangle(initPos[0].withRow((int)out2).withColumn((int)out), term.getTerminalSize().withRows(1).withColumns(1), 'o');
                     term.flush();
-                    keyStroke = term.readInput();
-                    switch (keyStroke.getKeyType()){
-                        case ArrowLeft:
-                            input[0]=-1;
-                        case ArrowRight:
-                            input[0]=1;
-                        default:
-                            input[0]=0;
-                    }
                     break;
             }
+
+
         }
+        System.out.println("END");
+        term.close();
     }
 
     private void initAoc() {
