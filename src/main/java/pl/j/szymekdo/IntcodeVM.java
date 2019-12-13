@@ -2,108 +2,33 @@ package pl.j.szymekdo;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AoC09 extends AoC {
-
+public class IntcodeVM{
+    ArrayList<List<Long>> contentList = new ArrayList<>();
     int[] thrusterYieldIP = new int[5];
     boolean[] thrusterHalted = new boolean[5];
     Boolean[] thrustedFinished = new Boolean[]{false, false, false, false, false};
     long[] params = new long[]{0};
-
     ArrayList<Long> out = new ArrayList<>();
     int relativeBase =0;
+    private JPanel panel1;
 
-
-    public static void main(String[] args) throws Exception {
-
-        new AoC09().part1();
-
+    public IntcodeVM(AoC day) throws Exception{
+        contentList.add(Arrays.stream(day.readFile().split(",")).map(e -> Long.parseLong(e.trim())).collect(Collectors.toList()));
+        day.fillContent(contentList);
     }
-
-    private void part1() throws Exception {
-        ArrayList<Long> outputs = new ArrayList<>();
-        //contentList.add(Arrays.stream(readFile().split(",")).map(e -> Long.parseLong(e.trim())).collect(Collectors.toList()));
-        //fillContent();
-
-        outputs.add(getOutput(new long[]{2}, 0));
-
-
-        outputs.sort(Long::compareTo);
-        System.out.println(out);
-    }
-
-
-
-    /*private void part2() throws Exception {
-        ArrayList<Long> outputs = new ArrayList<>();
-
-
-        for (int n = 5; n <= 9; n++) {
-            params[0] = n;
-            for (int m = 5; m <= 9; m++) {
-                if (m == n)
-                    continue;
-                params[2] = m;
-                for (int l = 5; l <= 9; l++) {
-                    if (l == n || l == m)
-                        continue;
-                    params[4] = l;
-                    for (int j = 5; j <= 9; j++) {
-                        if (j == n || j == m || j == l)
-                            continue;
-                        params[6] = j;
-                        for (int k = 5; k <= 9; k++) {
-                            if (k == n || k == m || k == l || k == j)
-                                continue;
-                            params[8] = k;
-                            params[1] = 0;
-                            params[3] = 0;
-                            params[5] = 0;
-                            params[7] = 0;
-                            params[9] = 0;
-                            contentList = new ArrayList<>();
-                            for (int i = 0; i < 5; i++) {
-                                contentList.add(Arrays.stream(readFile().split(",")).map(e -> Long.parseLong(e.trim())).collect(Collectors.toList()));
-                            }
-                            thrusterHalted = new boolean[5];
-                            thrusterYieldIP = new int[5];
-                            thrustedFinished = new Boolean[]{false, false, false, false, false};
-                            for (int i = 0, p = 0; i < params.length; i += 2, p++) {
-                                if (i + 3 == params.length) {
-                                    params[1] = getOutput(new long[]{params[i], params[i + 1]}, p);
-                                    i = -2;
-                                    p = -1;
-                                    if (Arrays.stream(thrustedFinished).allMatch(e -> e)) {
-                                        outputs.add(params[1]);
-                                        break;
-                                    }
-                                    continue;
-                                }
-                                params[i + 3] = getOutput(new long[]{params[i], params[i + 1]}, p);
-                                if (Arrays.stream(thrustedFinished).allMatch(e -> e)) {
-                                    outputs.add(params[1]);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        outputs.sort(Long::compareTo);
-        System.out.println(outputs.get(outputs.size() - 1));
-    }*/
 
     public long getOutput(long[] input, int thruster) throws Exception {
         thrusterHalted[thruster] = false;
-        List<Long> content = null;// contentList.get(thruster);
+        List<Long> content = contentList.get(thruster);
 
         int currentPosition = thrusterYieldIP[thruster];
-        int inputPosition = currentPosition == 0 ? 0 : 1;
+        int inputPosition = 0;//currentPosition == 0 ? 0 : 1;
         int opcode;
         try {
             outer:
@@ -135,10 +60,13 @@ public class AoC09 extends AoC {
                             currentPosition += 2;
                             break;
                         case 4:
-                            out.add(content.get(content.get(currentPosition + 1).intValue()));
+                            thrusterYieldIP[thruster]=currentPosition+2;
+                            //thrusterYieldInputPosition[thruster]=inputPosition;
+                            //out.add(content.get(content.get(currentPosition + 1).intValue()));
                             //System.out.println(out);
-                            currentPosition += 2;
-                            break;
+                            //currentPosition += 2;
+                            return content.get(content.get(currentPosition + 1).intValue());
+                        //break;
                         case 5:
                             if (parameter1 != 0) {
                                 parameter2 = content.get(content.get(currentPosition + 2).intValue());
@@ -219,10 +147,11 @@ public class AoC09 extends AoC {
                             currentPosition += 2;
                             break;
                         case 4:
-                            out.add(parameter1);
-                            //System.out.print(out);
-                            currentPosition += 2;
-                            break;
+                            thrusterYieldIP[thruster]=currentPosition+2;
+                            //thrusterYieldInputPosition[thruster]=inputPosition;
+                            //out.add(parameter1);
+                            return parameter1;
+                        //break;
                         case 5:
                             if (parameter1 != 0) {
                                 parameter2 = getParameter(parameterModes[1], content, currentPosition, 2);
@@ -275,7 +204,7 @@ public class AoC09 extends AoC {
         }
         thrustedFinished[thruster] = true;
         //System.out.println(content[4]);
-        return out.get(0);
+        return Long.MIN_VALUE;
     }
 
     long getParameter(int parameterMode, List<Long> content, int currentPosition, int parameterOrder){
