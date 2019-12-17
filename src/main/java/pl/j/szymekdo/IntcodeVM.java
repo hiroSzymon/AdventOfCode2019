@@ -24,6 +24,11 @@ public class IntcodeVM{
         day.fillContent(contentList);
     }
 
+    public long getOutput(long[] input) throws Exception {
+        thrusterYieldInputPosition[0]=0;
+        return getOutput(input, 0);
+    }
+
     public long getOutput(long[] input, int thruster) throws Exception {
         thrusterHalted[thruster] = false;
         List<Long> content = contentList.get(thruster);
